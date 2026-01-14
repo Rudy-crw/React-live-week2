@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import axios from "axios";
 import "./assets/style.css";
@@ -10,19 +10,47 @@ function App() {
     username: "",
     password: "",
   });
+  // const [isAuth, setIsAuth] = useState(false)
+  const [isAuth, setIsAuth] = useState(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("hexToken="))
+      ?.split("=")[1];
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = token;
+      return true;
+    }
+    return false;
+  });
 
-  const [isAuth, setIsAuth] = useState(false);
   const [products, setProducts] = useState([]);
   const [tempProduct, setTempProduct] = useState(null);
 
-  const getProducts = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
-      setProducts(res.data.products);
-    } catch (e) {
-      console.error(e);
+  // const getProducts = async () => {
+  //   try {
+  //     const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
+  //     setProducts(res.data.products);
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
+  // 修改原本的 useEffect
+  useEffect(() => {
+    // 定義一個只在這個 effect 裡使用的抓資料函式
+    const getProducts = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
+        setProducts(res.data.products);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    // 只有當 isAuth 為 true 時，才執行抓資料
+    if (isAuth) {
+      getProducts();
     }
-  };
+  }, [isAuth]); // 監聽 isAuth，只要登入狀態改變（變成 true），就會觸發
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -38,7 +66,6 @@ function App() {
       document.cookie = `hexToken=${token}; expires=${new Date(expired)}`;
       axios.defaults.headers.common["Authorization"] = token;
       setIsAuth(true);
-      getProducts();
     } catch (e) {
       setIsAuth(false);
       console.log(e.message);
@@ -51,14 +78,14 @@ function App() {
         .split("; ")
         .find((row) => row.startsWith("hexToken="))
         ?.split("=")[1];
-      console.log("目前token :".token);
+      console.log("目前token :", token);
       if (token) {
         axios.defaults.headers.common.Authorization = token;
         const res = await axios.post(`${API_BASE}/api/user/check`);
         console.log("token 驗證結果:", res.data);
       }
     } catch (error) {
-      console.error("token 驗證失敗", error.re);
+      console.error("token 驗證失敗", error.response);
     }
   };
 
