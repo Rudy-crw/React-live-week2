@@ -102,11 +102,12 @@ function App() {
               >
                 確認是否登入
               </button>
-              <h2>產品列表</h2>
+              <h2>R-Garage 現有車輛</h2>
               <table className="table">
                 <thead>
                   <tr>
-                    <th>產品名稱</th>
+                    <th>車款名稱</th>
+                    <th>車型風格</th>
                     <th>原價</th>
                     <th>售價</th>
                     <th>是否啟用</th>
@@ -117,7 +118,10 @@ function App() {
                   {products && products.length > 0 ? (
                     products.map((item) => (
                       <tr key={item.id}>
-                        <td>{item.title}</td>
+                        <td>
+                          {item.category} {item.title}
+                        </td>
+                        <td>{item.style}</td>
                         <td>{item.origin_price}</td>
                         <td>{item.price}</td>
                         <td>{item.is_enabled ? "啟用" : "未啟用"}</td>
@@ -149,16 +153,14 @@ function App() {
                     alt="主圖"
                   />
                   <div className="card-body">
-                    <h5 className="card-title">
-                      {tempProduct.title}
-                      <span className="badge bg-primary ms-2">
-                        {tempProduct.category}
+                    <h5 className="card-title d-flex align-items-center justify-content-center">
+                      {tempProduct.category} {tempProduct.title}
+                      <span className="badge rounded-pill text-bg-danger ms-2">
+                        {tempProduct.style}
                       </span>
                     </h5>
-                    <p className="card-text">
-                      商品描述：{tempProduct.description}
-                    </p>
-                    <p className="card-text">商品內容：{tempProduct.content}</p>
+                    <p className="card-text">{tempProduct.description}</p>
+                    <p className="card-text">{tempProduct.content}</p>
                     <div className="d-flex">
                       <p className="card-text text-secondary">
                         <del>{tempProduct.origin_price}</del>
